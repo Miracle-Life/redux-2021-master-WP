@@ -8,5 +8,6 @@ export function rootReducer(state, action) {
         return state - 1
     }
 
+
     return state
 }
