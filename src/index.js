@@ -1,6 +1,7 @@
 import './styles.css'
 import {rootReducer} from "./redux/rootReducer";
-import {applyMiddleware, createStore} from 'redux'
+import {applyMiddleware, compose, createStore} from 'redux'
+import {composeWithDevTools} from 'redux-devtools-extension';
 import thunk from "redux-thunk";
 import logger from 'redux-logger'
 import {asyncIncrement, changeTheme, decrement, increment} from "./redux/actions";
@@ -22,8 +23,20 @@ const themeBtn = document.getElementById('theme')
 //     }
 // }
 
-const store = createStore(rootReducer,
-    applyMiddleware(thunk, logger))
+// const store = createStore(
+//     rootReducer,
+//     compose(
+//         applyMiddleware(thunk, logger),
+//         window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+//     )
+// )
+
+const store = createStore(
+    rootReducer,
+    composeWithDevTools(
+        applyMiddleware(thunk, logger))
+)
+
 
 
 addBtn.addEventListener('click', () => {
@@ -35,10 +48,8 @@ subBtn.addEventListener('click', () => {
 
 })
 asyncBtn.addEventListener('click', () => {
-// setTimeout(()=>{
-//     store.dispatch(increment())
-// },2000)
     store.dispatch(asyncIncrement())
+
 })
 themeBtn.addEventListener('click', () => {
     // document.body.classList.toggle('dark')
@@ -50,6 +61,7 @@ store.subscribe(() => {
     // console.log(store.getState())
     const state = store.getState()
     counter.textContent = state.counter
-    document.body.className = state.theme.value
+    document.body.className = state.theme.value;
+    [addBtn, subBtn, themeBtn, asyncBtn].forEach(btn => btn.disabled = state.theme.disabled)
 })
 store.dispatch({type: 'INIT__APP'})
